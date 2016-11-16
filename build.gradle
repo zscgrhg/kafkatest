@@ -1,0 +1,43 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.novoda:bintray-release:0.3.5'
+    }
+}
+
+group 'com.accenture'
+version '1.0-SNAPSHOT'
+
+allprojects {
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
+    }
+
+    tasks.withType(Javadoc) {
+        options.encoding = 'UTF-8'
+    }
+}
+
+apply plugin: 'com.novoda.bintray-release'
+apply plugin: 'maven-publish'
+
+publishing {
+    repositories {
+        maven {
+            url "file:${rootDir}/maven-repo"
+        }
+    }
+}
+publish {
+    groupId = 'com.accenture'
+    artifactId = 'kafkatest'
+    version = project.version
+    description = 'kafka test'
+    website = 'https://github.com/zscgrhg/kafkatest'
+    issueTracker = 'https://github.com/zscgrhg/kafkatest/issues'
+    repository = 'https://github.com/zscgrhg/kafkatest.git'
+}
+
+
