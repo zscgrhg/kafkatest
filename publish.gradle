@@ -1,0 +1,19 @@
+apply plugin: 'com.novoda.bintray-release'
+apply plugin: 'maven-publish'
+
+publishing {
+    repositories {
+        maven {
+            url "file:${rootDir}/maven-repo"
+        }
+    }
+}
+publish {
+    groupId = 'com.accenture'
+    artifactId = project.name
+    version = project.version
+    description = 'kafka test'
+    website = 'https://github.com/zscgrhg/kafkatest'
+    issueTracker = 'https://github.com/zscgrhg/kafkatest/issues'
+    repository = 'https://github.com/zscgrhg/kafkatest.git'
+}

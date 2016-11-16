@@ -18,3 +18,6 @@ dependencies {
     compile 'org.apache.kafka:kafka_2.11:0.10.0.1'
     compile 'org.springframework.kafka:spring-kafka:1.1.1.RELEASE'
 }
+
+
+apply from:'../publish.gradle'
