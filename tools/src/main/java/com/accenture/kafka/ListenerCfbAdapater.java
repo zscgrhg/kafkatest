@@ -48,7 +48,7 @@ public class ListenerCfbAdapater<K, V> implements ListenerContainerFactoryBuilde
     public Map<String, Object> consumerConfigs() {
         Map<String, Object> props = new HashMap<>();
 
-        adjustConsumerConfigs(props);
+        initConsumerConfigs(props);
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaDetail.kafkaConnection.brokersAddress);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, deserializerK);
@@ -65,7 +65,7 @@ public class ListenerCfbAdapater<K, V> implements ListenerContainerFactoryBuilde
     public KafkaListenerContainerFactory containerFactory() {
         ConcurrentKafkaListenerContainerFactory<K, V> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
-        adjustConcurrentKafkaListenerContainerFactory(factory);
+        initConcurrentKafkaListenerContainerFactory(factory);
         factory.setConsumerFactory(consumerFactory());
         factory.setConcurrency(Math.max(1, kafkaDetail.maxPartitions));
         ContainerProperties containerProperties = factory.getContainerProperties();
@@ -74,7 +74,7 @@ public class ListenerCfbAdapater<K, V> implements ListenerContainerFactoryBuilde
     }
 
     @Override
-    public void adjustConsumerConfigs(final Map<String, Object> consumerConfigs) {
+    public void initConsumerConfigs(final Map<String, Object> consumerConfigs) {
 
     }
 
@@ -84,7 +84,7 @@ public class ListenerCfbAdapater<K, V> implements ListenerContainerFactoryBuilde
     }
 
     @Override
-    public void adjustConcurrentKafkaListenerContainerFactory(final ConcurrentKafkaListenerContainerFactory<K, V> factory) {
+    public void initConcurrentKafkaListenerContainerFactory(final ConcurrentKafkaListenerContainerFactory<K, V> factory) {
 
     }
 }

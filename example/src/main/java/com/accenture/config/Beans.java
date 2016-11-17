@@ -1,54 +1,45 @@
 package com.accenture.config;
 
+import com.accenture.kafka.BatchListenerCfbAdapater;
 import com.accenture.kafka.KafkaConnection;
 import com.accenture.kafka.KafkaDetail;
-import com.accenture.kafka.TopicDefine;
+import com.accenture.kafka.ListenerCfbAdapater;
 import com.accenture.utils.KafkaUtil;
-import kafka.utils.ZKStringSerializer$;
-import kafka.utils.ZkUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.I0Itec.zkclient.ZkClient;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.annotation.EnableKafka;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.config.KafkaListenerContainerFactory;
+import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 
-import java.util.Set;
+import java.util.List;
+
+import static com.accenture.config.Profiles.DEV;
+import static com.accenture.config.Profiles.TEST;
 
 /**
  * Created by THINK on 2016/11/16.
  */
 @Configuration
 @EnableKafka
-@Slf4j
 public class Beans {
 
-    @Autowired(required = false)
-    Set<TopicDefine> topicDefines;
-
 
     @Bean
-    KafkaUtil productionKafkaUtil() {
-        return new KafkaUtil(true);
+    public Listenner listenner() {
+        return new Listenner();
     }
 
+    public static class Listenner {
+        @KafkaListener(topics = "topicx", containerFactory = "batchFactory")
+        public void listen(List<ConsumerRecord<String, String>> list) throws InterruptedException {
 
-    @Bean
-    public KafkaDetail updateKafka(
-            KafkaConnection kafkaConnection, KafkaUtil kafkaUtil) {
-        ZkUtils zkUtils = new ZkUtils(new ZkClient(kafkaConnection.zookeeperConnectionString, 6000, 6000,
-                ZKStringSerializer$.MODULE$), null, false);
-        if (topicDefines != null && !topicDefines.isEmpty()) {
-
-            try {
-                kafkaUtil.createTopics(topicDefines, zkUtils);
-            } catch (Exception e) {
-                log.error(e.getLocalizedMessage(), e);
-            }
         }
 
-        return kafkaUtil.getKafkaInfo(zkUtils, kafkaConnection);
     }
-
-
 }

@@ -1,4 +1,4 @@
-package com.accenture.config;
+package com.accenture.kafka;
 
 import kafka.admin.AdminUtils;
 import kafka.admin.AdminUtils$;
@@ -51,6 +51,8 @@ public class KafkaEmbedded {
 
     private final int partitionsPerTopic;
 
+    private final String logDirBase;
+
     private List<KafkaServer> kafkaServers;
 
     private EmbeddedZookeeper zookeeper;
@@ -59,33 +61,34 @@ public class KafkaEmbedded {
 
     private String zkConnect;
 
-    public KafkaEmbedded(int port, int count) {
-        this(port, count, false);
+    public KafkaEmbedded(int port, int count, final String logDirBase) {
+        this(port, count, false, logDirBase);
     }
 
     /**
      * Create embedded Kafka brokers.
-     *
-     * @param count              the number of brokers.
+     *  @param count              the number of brokers.
      * @param controlledShutdown passed into TestUtils.createBrokerConfig.
+     * @param logDirBase
      * @param topics             the topics to create (2 partitions per).
      */
-    public KafkaEmbedded(int port, int count, boolean controlledShutdown, String... topics) {
-        this(port, count, controlledShutdown, 2, topics);
+    public KafkaEmbedded(int port, int count, boolean controlledShutdown, final String logDirBase, String... topics) {
+        this(port, count, controlledShutdown, 2, logDirBase, topics);
     }
 
     /**
      * Create embedded Kafka brokers.
-     *
-     * @param count              the number of brokers.
+     *  @param count              the number of brokers.
      * @param controlledShutdown passed into TestUtils.createBrokerConfig.
      * @param partitions         partitions per topic.
+     * @param logDirBase
      * @param topics             the topics to create.
      */
-    public KafkaEmbedded(int port, int count, boolean controlledShutdown, int partitions, String... topics) {
+    public KafkaEmbedded(int port, int count, boolean controlledShutdown, int partitions, final String logDirBase, String... topics) {
         this.KAFKA_SERVER_PORT = port;
         this.count = count;
         this.controlledShutdown = controlledShutdown;
+        this.logDirBase = logDirBase;
         if (topics != null) {
             this.topics = topics;
         } else {
@@ -115,6 +118,8 @@ public class KafkaEmbedded {
             brokerConfigProperties.setProperty("replica.socket.timeout.ms", "1000");
             brokerConfigProperties.setProperty("controller.socket.timeout.ms", "1000");
             brokerConfigProperties.setProperty("offsets.topic.replication.factor", "1");
+            brokerConfigProperties.setProperty("log.dirs", logDirBase +i);
+
             KafkaServer server = TestUtils.createServer(new KafkaConfig(brokerConfigProperties), SystemTime$.MODULE$);
             this.kafkaServers.add(server);
         }

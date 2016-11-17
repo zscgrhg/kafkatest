@@ -3,7 +3,9 @@ package com.accenture.kafka;
 import kafka.admin.RackAwareMode;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
+import lombok.Singular;
 
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -11,11 +13,13 @@ import java.util.Properties;
  */
 
 @Builder
-@EqualsAndHashCode(of={"topic"})
+@EqualsAndHashCode(of = {"topic"})
 public class TopicDefine {
     public final String topic;
     public final int partitions;
     public final int replicationFactor;
-    public final Properties topicConfig;
+
+    @Singular
+    public final Map topicConfigs;
     public final RackAwareMode rackAwareMode;
 }

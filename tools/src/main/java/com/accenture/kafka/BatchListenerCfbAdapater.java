@@ -53,13 +53,13 @@ public class BatchListenerCfbAdapater<K, V> extends ListenerCfbAdapater<K, V> {
 
 
     @Override
-    public void adjustConsumerConfigs(final Map<String, Object> consumerConfigs) {
-        super.adjustConsumerConfigs(consumerConfigs);
+    public void initConsumerConfigs(final Map<String, Object> consumerConfigs) {
+        super.initConsumerConfigs(consumerConfigs);
         consumerConfigs.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, fetchMinBytes);
     }
 
     @Override
-    public void adjustConcurrentKafkaListenerContainerFactory(final ConcurrentKafkaListenerContainerFactory<K, V> factory) {
+    public void initConcurrentKafkaListenerContainerFactory(final ConcurrentKafkaListenerContainerFactory<K, V> factory) {
         factory.setBatchListener(true);
     }
 }

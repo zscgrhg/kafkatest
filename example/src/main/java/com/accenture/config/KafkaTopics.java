@@ -3,12 +3,9 @@ package com.accenture.config;
 import com.accenture.kafka.TopicDefine;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
-
-import java.util.Properties;
 
 /**
- * Created by THINK on 2016/11/16.
+ * Created by THINK on 2016/11/17.
  */
 @Configuration
 public class KafkaTopics {
@@ -17,10 +14,9 @@ public class KafkaTopics {
         TopicDefine topicDefine =
                 TopicDefine
                         .builder()
-                        .topic("abcde")
+                        .topic("prod1")
                         .partitions(3)
-                        .replicationFactor(3)
-                        .topicConfig(new Properties())
+                        .replicationFactor(1)
                         .rackAwareMode(null)
                         .build();
         return topicDefine;
@@ -31,11 +27,9 @@ public class KafkaTopics {
         TopicDefine topicDefine =
                 TopicDefine
                         .builder()
-                        .topic("qwert")
+                        .topic("prod2")
                         .partitions(30)
-                        .replicationFactor(3)
-                        .topicConfig(new Properties())
-                        .rackAwareMode(null)
+                        .replicationFactor(1)
                         .build();
         return topicDefine;
     }

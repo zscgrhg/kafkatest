@@ -18,7 +18,7 @@ public interface ListenerContainerFactoryBuilder<K, V> {
 
     KafkaListenerContainerFactory containerFactory();
 
-    void adjustConsumerConfigs(Map<String, Object> consumerConfigs);
+    void initConsumerConfigs(Map<String, Object> consumerConfigs);
     void adjustContainerProperties(ContainerProperties containerProperties);
-    void adjustConcurrentKafkaListenerContainerFactory( ConcurrentKafkaListenerContainerFactory<K, V> factory);
+    void initConcurrentKafkaListenerContainerFactory(ConcurrentKafkaListenerContainerFactory<K, V> factory);
 }
