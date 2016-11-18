@@ -21,6 +21,7 @@ import java.util.List;
 
 import static com.accenture.config.Profiles.DEV;
 import static com.accenture.config.Profiles.TEST;
+import static com.accenture.kafka.KafkaAutoConfiguration.KafkaListenerContainerFactoryAutoConfiguration.KAFKA_BATCH_LISTERNER_CONTAINER_FACTORY_NAME;
 
 /**
  * Created by THINK on 2016/11/16.
@@ -36,7 +37,7 @@ public class Beans {
     }
 
     public static class Listenner {
-        @KafkaListener(topics = "topicx", containerFactory = "batchFactory")
+        @KafkaListener(topics = "topicx", containerFactory = KAFKA_BATCH_LISTERNER_CONTAINER_FACTORY_NAME)
         public void listen(List<ConsumerRecord<String, String>> list) throws InterruptedException {
 
         }

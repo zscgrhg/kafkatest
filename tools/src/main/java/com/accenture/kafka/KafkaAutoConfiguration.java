@@ -8,7 +8,6 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.I0Itec.zkclient.ZkClient;
 import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -45,6 +44,12 @@ public class KafkaAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    KafkaUtil kafkaUtil() {
+        return new KafkaUtil();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
     public KafkaDetail kafkaUpdater(
             KafkaConnection kafkaConnection, KafkaUtil kafkaUtil) {
 
@@ -64,6 +69,7 @@ public class KafkaAutoConfiguration {
         KafkaConnection kafkaConnection;
 
         @Bean
+        @ConditionalOnMissingBean
         public ProducerFactory<String, String> producerFactory() {
             Map<String, Object> producerConfig = producer.getProducerConfig();
             producerConfig.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConnection.brokersAddress);
@@ -72,6 +78,7 @@ public class KafkaAutoConfiguration {
 
 
         @Bean
+        @ConditionalOnMissingBean
         public KafkaTemplate<String, String> kafkaTemplate() {
             return new KafkaTemplate<>(producerFactory());
         }
@@ -95,25 +102,12 @@ public class KafkaAutoConfiguration {
             return kafkaConnection;
         }
 
-        @Bean
-        @ConditionalOnMissingBean
-        KafkaUtil productionKafkaUtil() {
-            return new KafkaUtil(true);
-        }
     }
 
     @Configuration
     @ConditionalOnProperty(name = "kafka.embedded.enabled", havingValue = "true")
     @ConditionalOnClass({EmbeddedZookeeper.class, TestUtils.class})
     public static class EmbeddedAutoConfiguration {
-
-
-        @Bean
-        @ConditionalOnMissingBean
-        KafkaUtil devKafkaUtil() {
-            return new KafkaUtil(false);
-        }
-
         @Bean
         @ConditionalOnMissingBean
         public KafkaConnection kafkaEmbedded(@Autowired
@@ -134,34 +128,32 @@ public class KafkaAutoConfiguration {
     }
 
     @Configuration
-    @ConditionalOnProperty(name = "kafka.consumer.group")
+    @ConditionalOnProperty(prefix = "kafka.consumer", value = "group-id")
     @ConditionalOnClass(KafkaListenerContainerFactory.class)
     public static class KafkaListenerContainerFactoryAutoConfiguration {
 
+        public static final String KAFKA_LISTERNER_CONTAINER_FACTORY_NAME = "kafkaListenerContainerFactory";
+        public static final String KAFKA_BATCH_LISTERNER_CONTAINER_FACTORY_NAME = "kafkaBatchListenerContainerFactory";
         @Autowired
         KafkaProperties.Consumer consumer;
 
         @Bean
         KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, String>>
         kafkaListenerContainerFactory(KafkaDetail kafkaDetail) throws Exception {
-            ListenerCfbAdapater<String, String> test =
+            ListenerCfbAdapater<String, String> adapater =
                     new ListenerCfbAdapater(kafkaDetail,
-                            consumer.getGroup(),
-                            StringDeserializer.class,
-                            StringDeserializer.class);
-            return test.containerFactory();
+                            consumer.getConsumerConfig());
+            return adapater.containerFactory();
         }
 
 
         @Bean
-        @ConditionalOnProperty(prefix = "kafka.consumer", value = "batch", havingValue = "true")
-        public KafkaListenerContainerFactory<?> batchFactory(KafkaDetail kafkaDetail) throws Exception {
-            BatchListenerCfbAdapater<String, String> test =
+        @ConditionalOnProperty(prefix = "kafka.consumer", value = "fetch-min-bytes")
+        public KafkaListenerContainerFactory<?> kafkaBatchListenerContainerFactory(KafkaDetail kafkaDetail) throws Exception {
+            BatchListenerCfbAdapater<String, String> adapater =
                     new BatchListenerCfbAdapater(kafkaDetail,
-                            consumer.getGroup(),
-                            StringDeserializer.class,
-                            StringDeserializer.class);
-            return test.containerFactory();
+                            consumer.getConsumerConfig());
+            return adapater.containerFactory();
         }
     }
 }

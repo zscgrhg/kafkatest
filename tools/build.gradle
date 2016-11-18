@@ -21,6 +21,7 @@ apply plugin: 'propdeps-maven'
 apply plugin: 'propdeps-idea'
 apply plugin: 'propdeps-eclipse'
 
+bootRepackage {}.enabled=false
 repositories {
     mavenCentral()
 }
@@ -32,10 +33,11 @@ dependencies {
     compileOnly('org.projectlombok:lombok:1.16.10')
     compile 'org.apache.kafka:kafka_2.11:0.10.0.1'
     compile 'org.springframework.kafka:spring-kafka:1.1.1.RELEASE'
-    compile 'org.springframework.kafka:spring-kafka-test:1.1.1.RELEASE'
+    compileOnly 'org.springframework.kafka:spring-kafka-test:1.1.1.RELEASE'
     compile 'org.assertj:assertj-core:2.5.0'
     optional "org.springframework.boot:spring-boot-configuration-processor"
 }
 compileJava.dependsOn(processResources)
 
 apply from:'../publish.gradle'
+

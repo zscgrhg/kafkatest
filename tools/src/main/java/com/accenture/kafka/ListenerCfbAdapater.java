@@ -1,7 +1,6 @@
 package com.accenture.kafka;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.springframework.core.serializer.Deserializer;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.config.KafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
@@ -16,43 +15,21 @@ import java.util.Map;
  */
 public class ListenerCfbAdapater<K, V> implements ListenerContainerFactoryBuilder<K, V> {
     protected final KafkaDetail kafkaDetail;
-    protected final String groupId;
-    protected final Class<? extends Deserializer<K>> deserializerK;
-    protected final Class<? extends Deserializer<V>> deserializerV;
-    public static final long defaultPollTimeout = 3000;
-    protected final long pollTimeout;
+    protected final Map<String, Object> configs;
 
     public ListenerCfbAdapater(
             final KafkaDetail kafkaDetail,
-            final String groupId,
-            final Class<? extends Deserializer<K>> deserializerK,
-            final Class<? extends Deserializer<V>> deserializerV,
-            long pollTimeout) {
+            final Map<String, Object> configs) {
         this.kafkaDetail = kafkaDetail;
-        this.groupId = groupId;
-        this.deserializerK = deserializerK;
-        this.deserializerV = deserializerV;
-        this.pollTimeout = pollTimeout;
-    }
-
-    public ListenerCfbAdapater(
-            final KafkaDetail kafkaDetail,
-            final String groupId,
-            final Class<? extends Deserializer<K>> deserializerK,
-            final Class<? extends Deserializer<V>> deserializerV) {
-        this(kafkaDetail, groupId, deserializerK, deserializerV, defaultPollTimeout);
+        this.configs = configs;
     }
 
 
     @Override
     public Map<String, Object> consumerConfigs() {
         Map<String, Object> props = new HashMap<>();
-
-        initConsumerConfigs(props);
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaDetail.kafkaConnection.brokersAddress);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, deserializerK);
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, deserializerV);
+        props.putAll(configs);
+        adjustConsumerConfigs(props);
         return props;
     }
 
@@ -65,7 +42,7 @@ public class ListenerCfbAdapater<K, V> implements ListenerContainerFactoryBuilde
     public KafkaListenerContainerFactory containerFactory() {
         ConcurrentKafkaListenerContainerFactory<K, V> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
-        initConcurrentKafkaListenerContainerFactory(factory);
+        adjustConcurrentKafkaListenerContainerFactory(factory);
         factory.setConsumerFactory(consumerFactory());
         factory.setConcurrency(Math.max(1, kafkaDetail.maxPartitions));
         ContainerProperties containerProperties = factory.getContainerProperties();
@@ -74,17 +51,17 @@ public class ListenerCfbAdapater<K, V> implements ListenerContainerFactoryBuilde
     }
 
     @Override
-    public void initConsumerConfigs(final Map<String, Object> consumerConfigs) {
-
+    public void adjustConsumerConfigs(final Map<String, Object> consumerConfigs) {
+        consumerConfigs.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaDetail.kafkaConnection.brokersAddress);
     }
 
     @Override
     public void adjustContainerProperties(final ContainerProperties containerProperties) {
-        containerProperties.setPollTimeout(pollTimeout);
+
     }
 
     @Override
-    public void initConcurrentKafkaListenerContainerFactory(final ConcurrentKafkaListenerContainerFactory<K, V> factory) {
+    public void adjustConcurrentKafkaListenerContainerFactory(final ConcurrentKafkaListenerContainerFactory<K, V> factory) {
 
     }
 }

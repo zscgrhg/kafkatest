@@ -57,6 +57,6 @@ task cleanKafkaLog(type: Delete) {
     delete '../kafkalog'
 }
 
-classes.dependsOn cleanKafkaLog
+//classes.dependsOn cleanKafkaLog
 
 

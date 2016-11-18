@@ -6,6 +6,7 @@ import com.accenture.kafka.TopicDefine;
 import kafka.admin.AdminUtils;
 import kafka.utils.ZKStringSerializer$;
 import kafka.utils.ZkUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.I0Itec.zkclient.ZkClient;
 import org.apache.kafka.common.requests.MetadataResponse;
 import scala.collection.JavaConversions;
@@ -16,12 +17,8 @@ import java.util.*;
 /**
  * Created by THINK on 2016/11/16.
  */
+@Slf4j
 public class KafkaUtil {
-    private final boolean isEmbedded;
-
-    public KafkaUtil(final boolean isEmbedded) {
-        this.isEmbedded = isEmbedded;
-    }
 
 
     private Set<String> fetchExistTopics(ZkUtils zkUtils) {
@@ -37,20 +34,20 @@ public class KafkaUtil {
         Set<String> existTopics = fetchExistTopics(zkUtils);
         for (TopicDefine topicDefine : topicDefines) {
             if (existTopics.contains(topicDefine.topic)) {
-                if (!isEmbedded && kafkaConnection.isEmbedded) {
-                    AdminUtils.deleteTopic(zkUtils, topicDefine.topic);
-                } else {
-                    continue;
-                }
+                continue;
             }
             Properties p = new Properties();
             p.putAll(topicDefine.topicConfigs);
-            AdminUtils.createTopic(zkUtils,
-                    topicDefine.topic,
-                    Math.max(topicDefine.partitions, 1),
-                    Math.max(topicDefine.replicationFactor, 1),
-                    p,
-                    topicDefine.rackAwareMode);
+            try {
+                AdminUtils.createTopic(zkUtils,
+                        topicDefine.topic,
+                        Math.max(topicDefine.partitions, 1),
+                        Math.max(topicDefine.replicationFactor, 1),
+                        p,
+                        topicDefine.rackAwareMode);
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+            }
         }
     }
 
