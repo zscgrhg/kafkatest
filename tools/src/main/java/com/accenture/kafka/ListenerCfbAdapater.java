@@ -14,13 +14,13 @@ import java.util.Map;
  * Created by THINK on 2016/11/16.
  */
 public class ListenerCfbAdapater<K, V> implements ListenerContainerFactoryBuilder<K, V> {
-    protected final KafkaDetail kafkaDetail;
+    protected final KafkaInspection kafkaInspection;
     protected final Map<String, Object> configs;
 
     public ListenerCfbAdapater(
-            final KafkaDetail kafkaDetail,
+            final KafkaInspection kafkaInspection,
             final Map<String, Object> configs) {
-        this.kafkaDetail = kafkaDetail;
+        this.kafkaInspection = kafkaInspection;
         this.configs = configs;
     }
 
@@ -44,7 +44,7 @@ public class ListenerCfbAdapater<K, V> implements ListenerContainerFactoryBuilde
                 new ConcurrentKafkaListenerContainerFactory<>();
         adjustConcurrentKafkaListenerContainerFactory(factory);
         factory.setConsumerFactory(consumerFactory());
-        factory.setConcurrency(Math.max(1, kafkaDetail.maxPartitions));
+        factory.setConcurrency(Math.max(1, kafkaInspection.maxPartitions));
         ContainerProperties containerProperties = factory.getContainerProperties();
         adjustContainerProperties(containerProperties);
         return factory;
@@ -52,7 +52,7 @@ public class ListenerCfbAdapater<K, V> implements ListenerContainerFactoryBuilde
 
     @Override
     public void adjustConsumerConfigs(final Map<String, Object> consumerConfigs) {
-        consumerConfigs.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaDetail.kafkaConnection.brokersAddress);
+        consumerConfigs.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaInspection.kafkaConnection.brokersAddress);
     }
 
     @Override

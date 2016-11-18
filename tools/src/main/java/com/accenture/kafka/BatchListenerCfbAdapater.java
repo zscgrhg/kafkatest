@@ -1,7 +1,5 @@
 package com.accenture.kafka;
 
-import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.springframework.core.serializer.Deserializer;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 
 import java.util.Map;
@@ -12,8 +10,8 @@ import java.util.Map;
 public class BatchListenerCfbAdapater<K, V> extends ListenerCfbAdapater<K, V> {
 
 
-    public BatchListenerCfbAdapater(final KafkaDetail kafkaDetail,final Map<String, Object> configs) {
-        super(kafkaDetail, configs);
+    public BatchListenerCfbAdapater(final KafkaInspection kafkaInspection, final Map<String, Object> configs) {
+        super(kafkaInspection, configs);
     }
 
     @Override

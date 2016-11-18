@@ -1,7 +1,7 @@
 package com.accenture.utils;
 
 import com.accenture.kafka.KafkaConnection;
-import com.accenture.kafka.KafkaDetail;
+import com.accenture.kafka.KafkaInspection;
 import com.accenture.kafka.TopicDefine;
 import kafka.admin.AdminUtils;
 import kafka.utils.ZKStringSerializer$;
@@ -30,10 +30,9 @@ public class KafkaUtil {
     }
 
     public void createTopics(Set<TopicDefine> topicDefines, KafkaConnection kafkaConnection) {
-        ZkUtils zkUtils = getAvaliableZkUtils(kafkaConnection);
-        Set<String> existTopics = fetchExistTopics(zkUtils);
+        ZkUtils zkUtils = createZkUtils(kafkaConnection);
         for (TopicDefine topicDefine : topicDefines) {
-            if (existTopics.contains(topicDefine.topic)) {
+            if (AdminUtils.topicExists(zkUtils, topicDefine.topic)) {
                 continue;
             }
             Properties p = new Properties();
@@ -51,8 +50,10 @@ public class KafkaUtil {
         }
     }
 
-    public KafkaDetail getKafkaInfo(KafkaConnection kafkaConnection) {
-        ZkUtils zkUtils = getAvaliableZkUtils(kafkaConnection);
+    public KafkaInspection getKafkaInfo(KafkaConnection kafkaConnection) {
+
+
+        ZkUtils zkUtils = createZkUtils(kafkaConnection);
         Set<String> topics = fetchExistTopics(zkUtils);
         scala.collection.Set<MetadataResponse.TopicMetadata> topicMetadataSet
                 = AdminUtils.fetchTopicMetadataFromZk(JavaConversions.asScalaSet(topics), zkUtils);
@@ -66,14 +67,14 @@ public class KafkaUtil {
             max = Math.max(max, size);
             topicPartitions.put(topic, size);
         }
-        KafkaDetail kafkaDetail = KafkaDetail.builder().kafkaConnection(kafkaConnection)
+        KafkaInspection kafkaInspection = KafkaInspection.builder().kafkaConnection(kafkaConnection)
                 .topicPartitions(topicPartitions)
                 .metadatas(topicMetadatas)
                 .maxPartitions(max).build();
-        return kafkaDetail;
+        return kafkaInspection;
     }
 
-    private ZkUtils getAvaliableZkUtils(KafkaConnection kafkaConnection) {
+    private ZkUtils createZkUtils(KafkaConnection kafkaConnection) {
         ZkUtils zkUtils = new ZkUtils(new ZkClient(kafkaConnection.zookeeperConnectionString, 60 * 1000, 60 * 1000,
                 ZKStringSerializer$.MODULE$), null, false);
         return zkUtils;

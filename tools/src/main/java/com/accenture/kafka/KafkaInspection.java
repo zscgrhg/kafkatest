@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 @Builder
-public class KafkaDetail{
+public class KafkaInspection {
     public final KafkaConnection kafkaConnection;
     public final int maxPartitions;
     @Singular

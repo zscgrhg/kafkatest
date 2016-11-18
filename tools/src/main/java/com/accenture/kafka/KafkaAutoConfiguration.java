@@ -50,7 +50,7 @@ public class KafkaAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public KafkaDetail kafkaUpdater(
+    public KafkaInspection kafkaUpdater(
             KafkaConnection kafkaConnection, KafkaUtil kafkaUtil) {
 
         if (topicDefines != null
@@ -96,9 +96,9 @@ public class KafkaAutoConfiguration {
         @ConditionalOnMissingBean
         public KafkaConnection kafka() throws Exception {
 
-            KafkaConnection kafkaConnection = KafkaConnection.builder().brokersAddress(kafkaProperties.brokersAddress)
+            KafkaConnection kafkaConnection = KafkaConnection.builder().brokersAddress(kafkaProperties.getBrokersAddress())
                     .isEmbedded(false)
-                    .zookeeperConnectionString(kafkaProperties.zookeeperConnectionString).build();
+                    .zookeeperConnectionString(kafkaProperties.getZookeeperConnectionString()).build();
             return kafkaConnection;
         }
 
@@ -132,16 +132,16 @@ public class KafkaAutoConfiguration {
     @ConditionalOnClass(KafkaListenerContainerFactory.class)
     public static class KafkaListenerContainerFactoryAutoConfiguration {
 
-        public static final String KAFKA_LISTERNER_CONTAINER_FACTORY_NAME = "kafkaListenerContainerFactory";
-        public static final String KAFKA_BATCH_LISTERNER_CONTAINER_FACTORY_NAME = "kafkaBatchListenerContainerFactory";
+        public static final String CONTAINER_FACTORY = "kafkaListenerContainerFactory";
+        public static final String BATCH_CONTAINER_FACTORY = "kafkaBatchListenerContainerFactory";
         @Autowired
         KafkaProperties.Consumer consumer;
 
         @Bean
         KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, String>>
-        kafkaListenerContainerFactory(KafkaDetail kafkaDetail) throws Exception {
+        kafkaListenerContainerFactory(KafkaInspection kafkaInspection) throws Exception {
             ListenerCfbAdapater<String, String> adapater =
-                    new ListenerCfbAdapater(kafkaDetail,
+                    new ListenerCfbAdapater(kafkaInspection,
                             consumer.getConsumerConfig());
             return adapater.containerFactory();
         }
@@ -149,9 +149,9 @@ public class KafkaAutoConfiguration {
 
         @Bean
         @ConditionalOnProperty(prefix = "kafka.consumer", value = "fetch-min-bytes")
-        public KafkaListenerContainerFactory<?> kafkaBatchListenerContainerFactory(KafkaDetail kafkaDetail) throws Exception {
+        public KafkaListenerContainerFactory<?> kafkaBatchListenerContainerFactory(KafkaInspection kafkaInspection) throws Exception {
             BatchListenerCfbAdapater<String, String> adapater =
-                    new BatchListenerCfbAdapater(kafkaDetail,
+                    new BatchListenerCfbAdapater(kafkaInspection,
                             consumer.getConsumerConfig());
             return adapater.containerFactory();
         }
